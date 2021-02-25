@@ -1,0 +1,566 @@
+<html>
+
+
+
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <title>PONG</title>
+    <link rel="stylesheet" href="../css/entropie.css">
+</head>
+
+<!--
+     // récupére une div par sa class
+     // var elements = document.getElementsByClassName(names);
+     // récupére un élément par son id
+     // var container = document.getElementById("translation");
+    -->
+
+
+<body>
+    <div id="plateau">
+        <div id="plateauG"></div>
+        <div id="plateauD"></div>
+        <div id="plateauM"></div>
+        
+        <div id="temperatureGauche"></div>
+        <div id="temperatureDroite"></div>
+        
+        <div id="vitesseRougeGauche"></div>
+        <div id="vitesseBleuGauche"></div>
+        <div id="vitesseRougeDroite"></div>
+        <div id="vitesseBleuDroite"></div>
+        
+    </div>
+
+</body>
+
+
+<script>
+    var Balles = document.getElementsByClassName("balle");
+    dt = 0.001;
+    
+    /*
+        m = masse en kg (on dira = taille)
+        normeV = speedX^2 + speedY^2;
+        Kb = 1.38064852 × 10-23; //J.K-1;
+        T = (somme(m * normeV)*K )/ (2*nbballe);    
+    */
+    puissanceB = Math.pow(10, -23);
+
+    K = 1.38064852 * puissanceB; //J.K-1
+
+    
+    // Déplacements de la balle
+    function newFrame() {
+        var currentX, currentY;
+
+        
+
+        coefT = 25 / (4.11 * Math.pow(10, -21));
+        calculeVitesseTemp();
+        
+        for (let balle of Balles) {
+
+
+            setZone(balle);
+            set2zones(balle);
+
+            speedX = parseFloat(balle.getAttribute("vx"));
+            speedY = parseFloat(balle.getAttribute("vy"));
+
+            // Initialisation des variables de position de la balle
+            currentX = parseFloat(balle.getAttribute("X"));
+            currentY = parseFloat(balle.getAttribute("Y"));
+            diametre = parseFloat(getComputedStyle(balle).getPropertyValue("--taille"));
+
+            //bord gauche
+            if (currentX < 0 + diametre / 2) {
+                speedX = -speedX;
+                changeParagraph(balle);
+            }
+            // bord droit
+            if (currentX > 162.75 - diametre / 2) {
+                speedX = -speedX;
+                changeParagraph(balle);
+            }
+            //bord haut
+            if (currentY < 0 + diametre / 2) speedY = -speedY;
+            changeParagraph(balle);
+            //bord bas
+            if (currentY > 95.5 - diametre / 2) speedY = -speedY;
+            changeParagraph(balle);
+
+
+            //bord haut gauche
+            if (currentY < 45 - diametre / 2) {
+                if ((0 - diametre / 2 < currentX) && (currentX < 70 - diametre / 2)) {
+                    if (60 - diametre / 2 <= currentX) {
+                        if (speedX > 0) {
+                            speedX = -speedX;
+                        }
+                    }
+                }
+            }
+            //bord bas gauche
+            if (currentY > 70 - diametre / 2) {
+                if ((0 - diametre / 2 < currentX) && (currentX < 70 - diametre / 2)) {
+                    if (60 - diametre / 2 <= currentX) {
+                        if (speedX > 0) {
+                            speedX = -speedX;
+                        }
+                    }
+                }
+            }
+
+            //bord haut droit
+            if (currentY < 45 - diametre / 2) {
+                if ((90 - diametre / 2 < currentX) && (currentX < 120 - diametre / 2)) {
+                    if (108 - diametre / 2 >= currentX) {
+                        if (speedX < 0) {
+                            speedX = -speedX;
+                        }
+                    }
+                }
+            }
+
+            //bord bas droit
+            if ((currentX < 108 - diametre / 2) && (currentY > 70 - diametre / 2)) {
+                if (100 - diametre / 2 < currentX) {
+                    if (speedX < 0) {
+                        speedX = -speedX;
+                    }
+                }
+            }
+
+            //milieu haut
+            if ((60 - diametre / 2 < currentX) && (currentX < 105 - diametre / 2) && (currentY < 45 - diametre / 2)) {
+                speedY = -speedY;
+            }
+            if ((60 - diametre / 2 < currentX) && (currentX < 105 - diametre / 2) && (currentY > 70 - diametre / 2)) {
+                speedY = -speedY;
+            }
+
+            // Déplacement de la balle
+            currentX += dt * speedX;
+            currentY += dt * speedY;
+
+            // Points de départ de la balle
+            balle.setAttribute("vx", speedX);
+            balle.setAttribute("vy", speedY);
+            changeParagraph(balle);
+
+            // Initialisation des variables de position de la balle
+            balle.setAttribute("X", currentX);
+            balle.setAttribute("Y", currentY);
+            balle.style.setProperty("--x", currentX);
+            balle.style.setProperty("--y", currentY);
+
+            // Collisions
+            for (let balle2 of Balles)
+                if (balle2 != balle) {
+
+                    if (-1 <= balle.getAttribute("zone") - balle2.getAttribute("zone") && balle.getAttribute("zone") - balle2.getAttribute("zone") <= 1) {
+                        X2 = parseFloat(balle2.getAttribute("X"));
+                        Y2 = parseFloat(balle2.getAttribute("Y"));
+                        speedX2 = parseFloat(balle2.getAttribute("vx"));
+                        speedY2 = parseFloat(balle2.getAttribute("vy"));
+
+
+                        let d = Math.sqrt(square(X2 - currentX) + square(Y2 - currentY));
+
+                        var ps1 = produitSca(X2 - currentX, Y2 - currentY, speedX2 - speedX, speedY2 - speedY);
+
+
+                        diametre2 = parseFloat(getComputedStyle(balle2).getPropertyValue("--taille"));
+
+                        if ((d < (diametre + diametre2) / 2) && (ps1 < 0)) {
+
+                            /* Modifier les vitesses seulement si les balles se rapprochent*/
+
+
+                            var norme1 = Math.sqrt(square(currentX - X2) + square(currentY - Y2))
+
+                            //calcul pipo de la masse des balles
+                            var calculMasse1 = (2 * diametre2) / (diametre + diametre2)
+                            var calculMasse2 = (2 * diametre) / (diametre + diametre2)
+
+                            //calcul de la constante
+                            var constante = ps1 / norme(currentX - X2, currentY - Y2)
+
+                            //calcul des nouvelles vitesse des balles
+                            var nouvelleVitesse1X = speedX + calculMasse1 * constante * (X2 - currentX);
+                            var nouvelleVitesse1Y = speedY + calculMasse1 * constante * (Y2 - currentY);
+                            var nouvelleVitesse2X = speedX2 - calculMasse2 * constante * (X2 - currentX);
+                            var nouvelleVitesse2Y = speedY2 - calculMasse2 * constante * (Y2 - currentY);
+
+                            //attribution des vitesse
+                            speedX = nouvelleVitesse1X;
+                            speedY = nouvelleVitesse1Y;
+                            speedX2 = nouvelleVitesse2X;
+                            speedY2 = nouvelleVitesse2Y;
+
+                            //masse * square(nome de vittess ) / 2
+                            //console.log(calculMasse1 * square(square(norme(nouvelleVitesse1X,nouvelleVitesse1Y)) /2))
+                            //console.log(calculMasse2 * square(square(norme(nouvelleVitesse2X,nouvelleVitesse2Y)) /2))
+
+                            //changement de variable
+                            changeParagraph(balle);
+                            changeParagraph(balle2);
+                        }
+
+                        //affection des vitesse aux balles
+                        balle.setAttribute("vx", speedX);
+                        balle.setAttribute("vy", speedY);
+                        balle2.setAttribute("vx", speedX2);
+                        balle2.setAttribute("vy", speedY2);
+
+                    }
+
+
+                }
+        }
+        setTimeout(newFrame, dt);
+    }
+
+    function square(x) {
+        return x * x
+    }
+
+
+    function produitSca(X1, Y1, X2, Y2) {
+        return X1 * X2 + Y1 * Y2;
+
+    }
+
+    function norme(X1, X2) {
+        return X1 * X1 + X2 * X2;
+    }
+
+    function sousGetX(X1, X2) {
+        return X2 - X1;
+    }
+
+    function sousGetY(Y1, Y2) {
+        return Y2 - Y1;
+    }
+
+    //génération de balles avec une couleur aléatoire
+
+    function geneBalleRandomColor(nombreBalle, bordureG, bordureH, bordureD, bordureB, v, tailleB) {
+
+        bordureG = bordureG + tailleB;
+        bordureH = bordureH + tailleB;
+        bordureB = bordureB - tailleB;
+        bordureD = bordureD - tailleB;
+
+        for (i = 0; i < nombreBalle; i++) {
+            var newDiv = document.createElement("div");
+            newDiv.className = "balle";
+            var couleur = getRandomColor();
+            newDiv.style.setProperty("--color", couleur);
+            newDiv.style.setProperty("background-color", couleur);
+            newDiv.style.setProperty("text-align", "center");
+            newDiv.style.setProperty("--taille", tailleB);
+
+            
+
+            var parag = document.createElement("p");
+            parag.className = "paragraph";
+            parag.innerHTML = v;
+            var tailleTmp = tailleB * 4
+            parag.style.setProperty("margin-top", tailleTmp + "px");
+            parag.style.setProperty("font-size", tailleTmp + "px");
+            newDiv.appendChild(parag);
+
+
+            newDiv.setAttribute("Y", getRandomArbitrary(bordureB, bordureH));
+            newDiv.setAttribute("X", getRandomArbitrary(bordureG, bordureD));
+
+
+            var tmpVitesseX = getRandomArbitrary(-v, v);
+            var vitesseX = getRandomSpeed(tmpVitesseX);
+            if (vitesseX < 0) {
+                var vitesseY = getRandomSpeed(v + vitesseX);
+            } else {
+                var vitesseY = getRandomSpeed(v - vitesseX);
+            }
+
+
+
+            newDiv.setAttribute("vx", vitesseX);
+            newDiv.setAttribute("vy", vitesseY);
+
+
+            var firstX = parseFloat(newDiv.getAttribute("X"));
+            var firstY = parseFloat(newDiv.getAttribute("Y"));
+
+
+            var currentDiv = document.getElementById('plateau');
+            currentDiv.appendChild(newDiv);
+
+        }
+    }
+
+
+    //génération de balles avec une couleur précisé
+    function geneBalle(nombreBalle, bordureG, bordureH, bordureD, bordureB, v, tailleB, couleur) {
+
+        bordureG = bordureG + tailleB;
+        bordureH = bordureH + tailleB;
+        bordureB = bordureB - tailleB;
+        bordureD = bordureD - tailleB;
+
+
+        for (i = 0; i < nombreBalle; i++) {
+            var newDiv = document.createElement("div");
+            newDiv.className = "balle";
+            newDiv.style.setProperty("background-color", couleur);
+            newDiv.style.setProperty("text-align", "center");
+            newDiv.style.setProperty("--taille", tailleB);
+            newDiv.style.setProperty("--color", couleur);
+
+            var parag = document.createElement("p");
+            parag.className = "paragraph";
+            var tailleTmp = tailleB * 4
+            parag.style.setProperty("margin-top", tailleTmp + "px");
+            parag.style.setProperty("font-size", tailleTmp + "px");
+
+            parag.innerHTML = v;
+            newDiv.appendChild(parag)
+
+
+            newDiv.setAttribute("Y", getRandomArbitrary(bordureB, bordureH));
+            newDiv.setAttribute("X", getRandomArbitrary(bordureG, bordureD));
+
+            var tmpVitesseX = getRandomArbitrary(-v, v);
+            var vitesseX = getRandomSpeed(tmpVitesseX);
+            if (vitesseX < 0) {
+                var vitesseY = getRandomSpeed(v + vitesseX);
+            } else {
+                var vitesseY = getRandomSpeed(v - vitesseX);
+            }
+
+            newDiv.setAttribute("vx", vitesseX);
+            newDiv.setAttribute("vy", vitesseY);
+
+            var firstX = parseFloat(newDiv.getAttribute("X"));
+            var firstY = parseFloat(newDiv.getAttribute("Y"));
+
+            var currentDiv = document.getElementById('plateau');
+            currentDiv.appendChild(newDiv);
+
+        }
+    }
+
+    function changeParagraph(balle) {
+        var childs = balle.childNodes;
+        var speed = parseFloat(Math.abs(balle.getAttribute("vx")));
+        speed += parseFloat(Math.abs(balle.getAttribute("vy")));
+        speed = Math.round(speed);
+        childs[0].innerHTML = speed;
+    }
+
+    function setZone(balle) {
+        for (c = 0; c < tabCoord.length - 1; c++) {
+            if (tabCoord[c] < balle.getAttribute("X") && balle.getAttribute("X") < tabCoord[c + 1]) {
+                balle.setAttribute("zone", c);
+            }
+        }
+    }
+
+    function set2zones(balle) { //vérifier si la balle est dans la zone
+        var taille = tabCoord[tabCoord.length - 1] / 2;
+        if (taille < balle.getAttribute("X")) {
+            //partie gauche
+            balle.setAttribute("zone2", "droite");
+            console.log("balle a droite");
+        } else if (taille > balle.getAttribute("X")) {
+            //partie droite
+            balle.setAttribute("zone2", "gauche");
+            console.log("balle a gauche");
+        }
+    }
+
+    function calculeVitesseTemp() {
+        
+            var tempG = 0; //temperature gauche
+            var tempD = 0; //temperature droite
+
+            //vitesse des balles a gauche
+            var vitesseBalleRougeG = 0; 
+            var vitesseBalleBleuG = 0;
+
+            //vitesse des balles a gauche
+            var vitesseBalleRougeD = 0;
+            var vitesseBalleBleuD = 0;
+
+            var sommeBalleG = 0; //somme balles gauche
+            var sommeBalleD= 0; //somme balles droite
+        
+            var sommeBalleRougeG = 0;
+            var sommeBalleBleuG = 0;
+            var sommeBalleRougeD = 0;
+            var sommeBalleBleuD = 0;
+        
+        for (let balle of Balles) {
+            
+            var couleur = getComputedStyle(balle).getPropertyValue("--color");
+
+            var masse = parseFloat(getComputedStyle(balle).getPropertyValue("--taille")) * Math.pow(10, -26);
+            var speedX = parseFloat(balle.getAttribute("vx"));
+            var speedY = parseFloat(balle.getAttribute("vy"));
+            var normeVcarre = square(Math.abs(speedX) + Math.abs(speedY));
+            //normeVcarre = square(Math.abs(speedX)) + square(Math.abs(speedY));
+            
+            
+            
+            Ecballe = masse * normeVcarre; //Ec en Joules
+
+            if (balle.getAttribute("zone2") == "gauche") {
+                tempG += Ecballe;
+                if(couleur == "red") {
+                    vitesseBalleRougeG+= Math.abs(speedX) + Math.abs(speedY);
+                    sommeBalleRougeG++;
+                }
+                else {
+                    vitesseBalleBleuG+= Math.abs(speedX) + Math.abs(speedY);
+                    sommeBalleBleuG++;
+                }
+                
+                sommeBalleG++;
+                
+            } else {
+                tempD += Ecballe;
+                
+                if(couleur == "red") {
+                    vitesseBalleRougeD+= Math.abs(speedX) + Math.abs(speedY);
+                    sommeBalleRougeD++;
+                }
+                else {
+                    vitesseBalleBleuD+= Math.abs(speedX) + Math.abs(speedY);
+                    sommeBalleBleuD++;
+                }
+                sommeBalleD++;
+            }
+        }
+        var a = tempG - 273.15;
+        if (sommeBalleD == 0) {
+            document.getElementById("temperatureGauche").innerHTML = "Temperature : " + a;
+            
+        }
+        if (sommeBalleG == 0) {
+            document.getElementById("temperatureDroite").innerHTML = "Temperature : " + a;
+        } else {
+            c = (tempG / (sommeBalleG * 2 * K)) - 273.15;
+            d = (tempD / (sommeBalleD * 2 * K)) - 273.15;
+            document.getElementById("temperatureGauche").innerHTML = "Temperature : " + c;
+            document.getElementById("temperatureDroite").innerHTML = "Temperature : " + d;
+        }
+        document.getElementById("vitesseRougeGauche").innerHTML = "vitesse : " + vitesseBalleRougeG/sommeBalleRougeG + "<br>nb Balle : " + sommeBalleRougeG;
+        document.getElementById("vitesseBleuGauche").innerHTML = "vitesse : " + vitesseBalleBleuG/sommeBalleBleuG + "<br>nb Balle : " + sommeBalleBleuG;
+        
+        document.getElementById("vitesseRougeDroite").innerHTML = "vitesse : " + vitesseBalleRougeD/sommeBalleRougeD + "<br>nb Balle : " + sommeBalleRougeD;
+        document.getElementById("vitesseBleuDroite").innerHTML = "vitesse : " + vitesseBalleBleuD/sommeBalleBleuD + "<br>nb Balle : " + sommeBalleBleuD;
+    }
+
+    function getRandomColor() { // code issue du site : http://morganridel.fr/generer-des-couleurs-aleatoires-en-javascript/
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    function getRandomArbitrary(min, max) { // code issue du site : https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Math/random
+        return Math.random() * (max - min) + min;
+    }
+
+
+    function getRandomSpeed(v) {
+        var nb = getRandomArbitrary(-1, 1);
+        if (nb < 0) return -v;
+        return v;
+
+    }
+
+    function getMaxSize() {
+
+        var Balles = document.getElementsByClassName("balle");
+        var max = 0;
+
+        for (let balle of Balles) {
+            currentSizeBalle = parseFloat(getComputedStyle(balle).getPropertyValue("--taille"))
+            if (max < currentSizeBalle) {
+                max = currentSizeBalle
+            }
+
+        }
+        return max;
+    }
+
+    //generation de div
+    function geneDiv() {
+
+        var sizeDiv = getMaxSize();
+        var sizeBalle = sizeDiv * 10 + 20
+        var tailleWidth = sizeDiv * 10 + 20;
+        var pair_impaire = 1;
+
+        //var plat = document.getElementsByClassName('plateau');
+        //var taillePlateau = parseFloat(getComputedStyle(plat).getPropertyValue("width"));
+        var taillePlateau = 1939;
+        var tmpTailleB = sizeDiv + 20
+        tabCoord = [0];
+
+        while (sizeDiv < taillePlateau) {
+
+            if (sizeDiv + sizeBalle > taillePlateau) {
+                sizeDiv = (taillePlateau - sizeBalle)
+            }
+
+            var newDiv = document.createElement("div");
+            newDiv.className = "zone";
+
+            newDiv.style.setProperty("position", "absolute");
+            newDiv.style.setProperty("width", tailleWidth + "px");
+            newDiv.style.setProperty("height", "calc(95.5*1vmin)");
+            newDiv.style.setProperty("z-index", "1");
+            newDiv.style.setProperty("margin-left", sizeDiv.toString() + "px");
+
+
+            if (pair_impaire == 1) {
+                newDiv.style.setProperty("background-color", "antiquewhite");
+                pair_impaire = 0;
+            } else {
+                newDiv.style.setProperty("background-color", "whitesmoke");
+                pair_impaire = 1
+            }
+
+            tabCoord.push(sizeDiv * 0.083);
+            sizeDiv += sizeBalle;
+
+            var currentDiv = document.getElementById('plateau');
+            // currentDiv.appendChild(newDiv);
+        }
+    }
+
+    window.onload = function() {
+        newFrame();
+        
+        //geneBalle(70, 1, 1, 152, 95.5, 0.5, 2, 'red'); //nombre balle,g,h,d,b,vitesse balle,taille,couleur
+        geneBalle(50, 1, 1, 60, 90, 0, 5, 'blue');
+        geneBalle(50, 106, 1, 150, 90, 800, 2, 'red');
+        geneDiv();
+
+
+
+    }
+
+</script>
+
+</html>

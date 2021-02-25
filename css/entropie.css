@@ -1,0 +1,146 @@
+.balle {
+    --taille: 4;
+    --x: 75;
+    --y: 40;
+    z-index: 1;
+    width: calc(var(--taille)*1vmin);
+    height: calc(var(--taille)*1vmin);
+    position: absolute;
+    left: calc(var(--x)*1vmin);
+    top: calc(var(--y)*1vmin);
+    border-radius: 50%;
+    background-color: palegreen;
+    transform: translate(-50%, -50%);
+}
+
+#plateau {
+    width: calc(163*1vmin);
+    height: calc(95.5*1vmin);
+    left: calc(5*1vmin);
+    top: calc(5*1vmin);
+    position: absolute;
+}
+
+#plateauG {
+    z-index: 0;
+    width: calc(60*1vmin);
+    height: calc(96*1vmin);
+    left: 1px;
+    position: absolute;
+    background-color: gainsboro;
+}
+
+#plateauD {
+    z-index:0;
+    --x: 103;
+    width: calc(60*1vmin);
+    height: calc(96*1vmin);
+    left: calc(var(--x)*1vmin);
+    top: calc(var(--y)*1vmin);
+    position: absolute;
+    background-color: gainsboro;
+}
+
+#plateauM {
+    z-index: 0;
+    --x: 60;
+    --y: 40;
+    width: calc(50*1vmin);
+    height: calc(30*1vmin);
+    left: calc(var(--x)*1vmin);
+    top: calc(var(--y)*1vmin);
+    position: absolute;
+    background-color: gainsboro;
+}
+
+
+#temperatureGauche {
+    opacity: .97;
+    z-index: 2;
+    border: solid;
+    left: 0;
+    position: absolute;
+    background-color: skyblue;
+    border-color: dimgray;
+    text-align: center;
+    padding: 2em;
+}
+
+#vitesseBleuGauche {
+    opacity: .97;
+    z-index: 2;
+    border: solid;
+    left: 0;
+    bottom :0;
+    position: absolute;
+    background-color: skyblue;
+    border-color: dimgray;
+    text-align: center;
+    padding: 2em;
+}
+
+#vitesseRougeGauche {
+    opacity: .97;
+    z-index: 2;
+    border: solid;
+    left:540;
+    bottom :0;
+    position: absolute;
+    background-color: lightpink;
+    border-color: dimgray;
+    text-align: center;
+    padding: 2em;
+}
+
+
+#temperatureDroite {
+    opacity: .97;
+    z-index: 2;
+    border: solid;
+    right: 0;
+    position: absolute;
+    background-color: lightpink;
+    border-color: dimgray;
+    text-align: center;
+    padding: 2em;
+}
+
+#vitesseRougeDroite{
+    opacity: .97;
+    z-index: 2;
+    border: solid;
+    right: 0;
+    bottom :0;
+    position: absolute;
+    background-color: lightpink;
+    border-color: dimgray;
+    text-align: center;
+    padding: 2em;
+}
+
+#vitesseBleuDroite{
+    opacity: .97;
+    z-index: 2;
+    border: solid;
+    right: 530;
+    bottom :0;
+    position: absolute;
+    background-color: skyblue;
+    border-color: dimgray;
+    text-align: center;
+    padding: 2em;
+}
+
+
+
+div.containerIframe {
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #999;
+}
+
+iframe.tuto {
+    width: 220px;
+    height: 120px;
+    border: 2px solid #FFA500;
+}

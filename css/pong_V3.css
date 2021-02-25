@@ -1,0 +1,63 @@
+.balle {
+    --taille: 4;
+    --x:75;
+    --y:40;
+    z-index: 3;
+    width: calc(var(--taille)*1vmin);
+    height: calc(var(--taille)*1vmin);
+    position: absolute;
+    left:calc(var(--x)*1vmin);
+    top:calc(var(--y)*1vmin);
+    border-radius: 50%;
+    background-color:palegreen;
+    transform: translate(-50%,-50%);
+}
+
+.paragraph {
+    margin-top: 30px;
+    font-size: 10px;
+}
+
+
+
+
+#plateau {
+    --tailleP: calc( 26px + calc(158.1*1vmin));
+    z-index: 1;
+    border-top:solid;
+    border-bottom:solid;
+    width: calc( 26px + calc(158.1*1vmin));
+    height: calc(95.5*1vmin);
+    position: absolute;
+    border-top-color:dimgray;
+    border-bottom-color:dimgray;
+    background-color: whitesmoke;
+
+}
+
+#raquetteG {
+    z-index: 3;
+    --y:40;
+    border:solid;
+    width:calc(3*1vmin);
+    height:calc(15*1vmin);
+    left:1px;
+    top:calc(var(--y)*1vmin);
+    position: absolute;
+    background-color:paleturquoise;
+    border-color: dimgray;
+}
+
+#raquetteD {
+    z-index: 3;
+    --x:156;
+    --y:40;
+    border:solid;
+    width:calc(3*1vmin);
+    height:calc(15*1vmin);
+    left:calc(var(--x)*1vmin);
+    top:calc(var(--y)*1vmin);
+    position: absolute;
+    background-color:palevioletred;
+    border-color: dimgray;
+}
